@@ -47,6 +47,7 @@ export default class FacetsApi {
      * @param {Object} opts Optional parameters
      * @param {Array.<String>} opts.filter filter represents selected facet values. Elasticsearch query will be run only over selected facet values. filter is an array of strings, where each string has the format \&quot;esFieldName&#x3D;facetValue\&quot;. Example url /facets?filter&#x3D;Gender&#x3D;female,Region&#x3D;northwest,Region&#x3D;southwest 
      * @param {Array.<String>} opts.extraFacets extraFacets represents the fields selected from the field search box. extraFacets is a list of Elasticsearch field names. In the returned list of facets, the extra facets will come before the facets from ui.json.
+     * @param {Boolean} opts.showTimeSeries 
      * @param {module:api/FacetsApi~facetsGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/FacetsResponse}
      */
@@ -59,7 +60,8 @@ export default class FacetsApi {
       };
       let queryParams = {
         'filter': this.apiClient.buildCollectionParam(opts['filter'], 'pipes'),
-        'extraFacets': this.apiClient.buildCollectionParam(opts['extraFacets'], 'pipes')
+        'extraFacets': this.apiClient.buildCollectionParam(opts['extraFacets'], 'pipes'),
+        'showTimeSeries': opts['showTimeSeries']
       };
       let headerParams = {
       };

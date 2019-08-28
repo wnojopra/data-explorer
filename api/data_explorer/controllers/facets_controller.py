@@ -21,6 +21,13 @@ def _get_bucket_interval(facet):
 def _add_facet(es_field_name, is_time_series, parent_is_time_series,
                time_series_panel, separate_panel, time_series_vals, facets, es,
                mapping):
+    #is_time_series = False
+    #parent_is_time_series = False
+    # current_app.logger.info(es_field_name)
+    # current_app.logger.info(is_time_series)
+    # current_app.logger.info(parent_is_time_series)
+    # current_app.logger.info(time_series_panel)
+    # current_app.logger.info(separate_panel)
     field_type = elasticsearch_util.get_field_type(es_field_name, mapping)
     name_arr = es_field_name.split('.')
     if is_time_series or parent_is_time_series:
@@ -59,9 +66,12 @@ def _add_facet(es_field_name, is_time_series, parent_is_time_series,
     facets[es_field_name][
         'es_facet'] = elasticsearch_util.get_elasticsearch_facet(
             es, es_field_name, field_type, time_series_vals)
+    current_app.logger.info(facets)
 
 
-def _process_extra_facets(extra_facets):
+def _process_extra_facets(extra_facets, toggle):
+    current_app.logger.info('TOGGLE')
+    current_app.logger.info(toggle)
     if (not extra_facets) or extra_facets == ['']:
         current_app.config['EXTRA_FACET_INFO'] = {}
         return
@@ -76,15 +86,34 @@ def _process_extra_facets(extra_facets):
             es_base_field_name, mapping)
         parent_is_time_series = elasticsearch_util.is_time_series(
             es_parent_field_name, mapping)
+        #is_time_series = False
+        #parent_is_time_series = False
+        # current_app.logger.info('DEBUG PROCESS EXTRA FACET')
+        # current_app.logger.info(es_base_field_name)
+        # current_app.logger.info(es_parent_field_name)
+        # current_app.logger.info(is_time_series)
+        # current_app.logger.info(parent_is_time_series)
+        # current_app.logger.info('END DEBUG PROCESS EXTRA FACET')
         if is_time_series:
             time_series_vals = elasticsearch_util.get_time_series_vals(
                 es_base_field_name, mapping)
             es_field_names = [
                 es_base_field_name + '.' + tsv for tsv in time_series_vals
             ]
+            # if not toggle:
+            #     es_field_name = es_field_names[-1]
+            #     is_time_series = False
+            #     parent_is_time_series = True
+            #     time_series_panel = False
+            #     separate_panel = False
+            #     _add_facet(es_field_name, is_time_series,
+            #                parent_is_time_series, time_series_panel,
+            #                separate_panel, time_series_vals, facets, es,
+            #                mapping)
+            # else:
             for es_field_name in es_field_names:
-                separate_panel = (es_field_name in facets
-                                  and facets[es_field_name]['separate_panel'])
+                separate_panel = (es_field_name in facets and
+                                  facets[es_field_name]['separate_panel'])
                 _add_facet(es_field_name, is_time_series,
                            parent_is_time_series, True, separate_panel,
                            time_series_vals, facets, es, mapping)
@@ -94,6 +123,9 @@ def _process_extra_facets(extra_facets):
             time_series_panel = (
                 es_base_field_name in facets
                 and facets[es_base_field_name]['time_series_panel'])
+            # current_app.logger.info(es_base_field_name)
+            # current_app.logger.info(es_base_field_name in facets)
+            # current_app.logger.info(facets[es_base_field_name]['time_series_panel'])
             _add_facet(es_base_field_name, is_time_series,
                        parent_is_time_series, time_series_panel, True,
                        time_series_vals, facets, es, mapping)
@@ -255,7 +287,8 @@ def _get_histogram_facet(es_field_name, facet_info, es_response_facets):
                  time_series_value_counts=[])
 
 
-def facets_get(filter=None, extraFacets=None):  # noqa: E501
+def facets_get(filter=None, extraFacets=None,
+               showTimeSeries=None):  # noqa: E501
     """facets_get
     Returns facets. # noqa: E501
     :param filter: filter represents selected facet values. Elasticsearch query
@@ -267,7 +300,7 @@ def facets_get(filter=None, extraFacets=None):  # noqa: E501
     :type extraFacets: List[str]
     :rtype: FacetsResponse
     """
-    _process_extra_facets(extraFacets)
+    _process_extra_facets(extraFacets, showTimeSeries)
     combined_facets = (current_app.config['EXTRA_FACET_INFO'].items() +
                        current_app.config['FACET_INFO'].items())
     combined_facets_dict = OrderedDict(combined_facets)
@@ -308,7 +341,7 @@ def facets_get(filter=None, extraFacets=None):  # noqa: E501
                 _get_time_series_facet(combined_facets[start:i],
                                        es_response_facets))
         else:
-            assert facet_info.get('separate_panel', True)
+            #assert facet_info.get('separate_panel', True)
             i += 1
             facets.append(
                 _get_histogram_facet(es_field_name, facet_info,

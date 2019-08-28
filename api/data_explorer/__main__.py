@@ -236,6 +236,13 @@ def _process_facets(es):
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
         es_field_names = {}
         for name, field in app.app.config['SAMPLE_FILE_COLUMNS'].iteritems():
+            # "sample_file_columns":{
+            #     "RNA sample":"amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM",
+            #     "WGS sample":"amp-pd-wg-wgs.2019_release1_0729.wgs_samples.CRAM"
+            # }
+            # name = 'RNA sample'
+            # field = 'amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM'
+            # es_field_names 
             facet_name = 'Has %s' % name
             es_field_name = 'samples._has_%s' % name.lower().replace(' ', '_')
             es_field_names[facet_name] = es_field_name
@@ -248,6 +255,32 @@ def _process_facets(es):
             'es_facet'] = elasticsearch_util.get_samples_overview_facet(
                 es_field_names)
 
+        name = 'RNA sample'
+        rna_field_names = {
+            'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
+        }
+        facets[name] = {
+            'elasticsearch_field_names': rna_field_names,
+            'type': 'samples_overview',
+            'ui_facet_name': name
+        }
+        facets[name][
+            'es_facet'] = elasticsearch_util.get_samples_overview_facet(
+                rna_field_names)
+        name = 'WGS sample'
+        wgs_field_names = {
+            'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
+        }
+        facets[name] = {
+            'elasticsearch_field_names': wgs_field_names,
+            'type': 'samples_overview',
+            'ui_facet_name': name
+        }
+        facets[name][
+            'es_facet'] = elasticsearch_util.get_samples_overview_facet(
+                wgs_field_names)
+    # app.app.logger.warning('HEY WILLY LOOK HERE')
+    # app.app.logger.warning(facets)
     app.app.config['NESTED_PATHS'] = elasticsearch_util.get_nested_paths(es)
 
     # Precompute mapping for getting time series values later.
@@ -275,6 +308,10 @@ def _process_facets(es):
             for es_field_name in es_field_names:
                 separate_panel = (es_field_name in facets
                                   and facets[es_field_name]['separate_panel'])
+                # app.app.logger.warning('Willy, adding facet')
+                # app.app.logger.warning(' '.join([str(i) for i in [es_field_name, is_time_series,
+                # parent_is_time_series, True, separate_panel,
+                # facet_config, time_series_vals, facets, es, mapping]]))
                 _add_facet(es_field_name, is_time_series,
                            parent_is_time_series, True, separate_panel,
                            facet_config, time_series_vals, facets, es, mapping)
@@ -284,6 +321,8 @@ def _process_facets(es):
             time_series_panel = (
                 es_base_field_name in facets
                 and facets[es_base_field_name]['time_series_panel'])
+            # app.app.logger.warning('Willy, adding time series parent facet')
+            # app.app.logger.warning(' '.join([str(i) for i in [es_field_name, is_time_series, parent_is_time_series, True, separate_panel, facet_config, time_series_vals, facets, es, mapping]]))
             _add_facet(es_base_field_name, is_time_series,
                        parent_is_time_series, time_series_panel, True,
                        facet_config, time_series_vals, facets, es, mapping)

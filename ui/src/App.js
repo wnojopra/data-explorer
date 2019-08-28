@@ -424,10 +424,13 @@ class App extends Component {
     var extraFacets = params.get("extraFacets")
       ? params.get("extraFacets").split(pipe)
       : [];
+    var showTimeSeries = params.get("showTimeSeries")
+    console.log(showTimeSeries)
     this.callFacetsApiGet(
       {
         filter: filter,
-        extraFacets: extraFacets
+        extraFacets: extraFacets,
+        showTimeSeries: showTimeSeries
       },
       function(error, data) {
         this.facetsCallback(error, data);

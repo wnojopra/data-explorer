@@ -50,6 +50,11 @@ paths:
           type: array
           items:
             type: string
+        - name: showTimeSeries
+          in: query
+          schema:
+          type: boolean
+          allowEmptyValue: true
       responses:
         200:
           description: Success
