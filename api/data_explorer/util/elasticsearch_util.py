@@ -248,13 +248,12 @@ def get_field_type(field_name, mapping):
 
 def is_time_series(field_name, mapping):
     """Returns true iff field_name has time series data.
-    """
+    """        
     submapping = mapping[
         current_app.config['INDEX_NAME']]['mappings']['type']['properties']
+
     for subname in field_name.split('.')[:-1]:
         submapping = submapping[subname]['properties']
-    #current_app.logger.info(submapping)
-    #current_app.logger.info(field_name)
     submapping = submapping[field_name.split('.')[-1]]
     return ('properties' in submapping
             and '_is_time_series' in submapping['properties'])
@@ -359,7 +358,7 @@ def get_elasticsearch_facet(es, elasticsearch_field_name, field_type,
         # https://www.elastic.co/guide/en/elasticsearch/reference/6.2/fielddata.html#before-enabling-fielddata
         es_facet = TermsFacet(
             field=elasticsearch_field_name + '.keyword',
-            size=10000)  # TODO we will need to use paging if >1000
+            size=1000)  # TODO we will need to use paging if >1000
     elif field_type == 'boolean':
         es_facet = TermsFacet(field=elasticsearch_field_name)
     else:
@@ -384,10 +383,8 @@ def get_elasticsearch_facet(es, elasticsearch_field_name, field_type,
 def get_samples_overview_facet(es_field_names):
     filters = {
         facet: Match(**{field: True})
-        #facet: MultiMatch(**{field: True, 'aaa-willyn-test.test_dataset.rna_samples.monthh': '2'})
         for facet, field in es_field_names.iteritems()
     }
-    # current_app.logger.info('Willy, filteres are {}'.format(filters))
     return NestedFacet('samples', FiltersFacet(filters))
 
 

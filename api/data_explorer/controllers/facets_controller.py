@@ -66,12 +66,9 @@ def _add_facet(es_field_name, is_time_series, parent_is_time_series,
     facets[es_field_name][
         'es_facet'] = elasticsearch_util.get_elasticsearch_facet(
             es, es_field_name, field_type, time_series_vals)
-    current_app.logger.info(facets)
 
 
 def _process_extra_facets(extra_facets, toggle):
-    current_app.logger.info('TOGGLE')
-    current_app.logger.info(toggle)
     if (not extra_facets) or extra_facets == ['']:
         current_app.config['EXTRA_FACET_INFO'] = {}
         return
@@ -252,6 +249,10 @@ def _get_time_series_facet(time_series_facets, es_response_facets):
 
     value_names, time_series_value_counts = _get_time_series_params(
         ts_value_names, ts_values)
+    # current_app.logger.info('hi willy')
+    # current_app.logger.info(ts_ui_name)
+    if '_has_rna_sample' in ts_ui_name:
+        ts_ui_name = 'Has RNA sample'
     return Facet(name=ts_ui_name,
                  description=ts_description,
                  es_field_name=ts_field_name,

@@ -181,22 +181,22 @@ def _process_bigquery():
 def _add_facet(es_field_name, is_time_series, parent_is_time_series,
                time_series_panel, separate_panel, facet_config,
                time_series_vals, facets, es, mapping):
-    if (es_field_name in facets
-            and is_time_series == facets[es_field_name]['time_series_panel']):
-        # es_field_name is allowed to occur at most twice,
-        # once within a time series facet and once as a
-        # separate facet
-        raise EnvironmentError('%s appears too many times in ui.json' %
-                               es_field_name)
+    # if (es_field_name in facets
+    #         and is_time_series == facets[es_field_name]['time_series_panel']):
+    #     # es_field_name is allowed to occur at most twice,
+    #     # once within a time series facet and once as a
+    #     # separate facet
+    #     raise EnvironmentError('%s appears too many times in ui.json' %
+    #                            es_field_name)
     field_type = elasticsearch_util.get_field_type(es_field_name, mapping)
     ui_facet_name = facet_config['ui_facet_name']
-    if es_field_name.startswith('samples.'):
-        ui_facet_name = '%s (samples)' % ui_facet_name
-    if (es_field_name in facets
-            and facets[es_field_name]['ui_facet_name'] != ui_facet_name):
-        raise EnvironmentError(
-            '%s has inconsistent values for ui_facet_name in ui.json' %
-            es_field_name)
+    #if es_field_name.startswith('samples.'):
+    #    ui_facet_name = '%s (samples)' % ui_facet_name
+    # if (es_field_name in facets
+    #         and facets[es_field_name]['ui_facet_name'] != ui_facet_name):
+    #     raise EnvironmentError(
+    #         '%s has inconsistent values for ui_facet_name in ui.json' %
+    #         es_field_name)
 
     if es_field_name in facets and is_time_series:
         # Need to remove and re-insert time series items to
@@ -232,53 +232,54 @@ def _process_facets(es):
     # bigquery.json. This facet is mapped to multiple Elasticsearch facets, and
     # has keys - 'elasticsearch_field_names', 'type', 'ui_facet_name' and 'es_facet'.
     if app.app.config['SAMPLE_FILE_COLUMNS']:
+        pass
         # Construct Elasticsearch filters. See
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
-        es_field_names = {}
-        for name, field in app.app.config['SAMPLE_FILE_COLUMNS'].iteritems():
-            # "sample_file_columns":{
-            #     "RNA sample":"amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM",
-            #     "WGS sample":"amp-pd-wg-wgs.2019_release1_0729.wgs_samples.CRAM"
-            # }
-            # name = 'RNA sample'
-            # field = 'amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM'
-            # es_field_names 
-            facet_name = 'Has %s' % name
-            es_field_name = 'samples._has_%s' % name.lower().replace(' ', '_')
-            es_field_names[facet_name] = es_field_name
-        facets['Samples Overview'] = {
-            'elasticsearch_field_names': es_field_names,
-            'type': 'samples_overview',
-            'ui_facet_name': 'Samples Overview'
-        }
-        facets['Samples Overview'][
-            'es_facet'] = elasticsearch_util.get_samples_overview_facet(
-                es_field_names)
+        # es_field_names = {}
+        # for name, field in app.app.config['SAMPLE_FILE_COLUMNS'].iteritems():
+        #     # "sample_file_columns":{
+        #     #     "RNA sample":"amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM",
+        #     #     "WGS sample":"amp-pd-wg-wgs.2019_release1_0729.wgs_samples.CRAM"
+        #     # }
+        #     # name = 'RNA sample'
+        #     # field = 'amp-pd-wg-rna.2019_v1beta_0630.rna_seq_samples.BAM'
+        #     # es_field_names 
+        #     facet_name = 'Has %s' % name
+        #     es_field_name = 'samples._has_%s' % name.lower().replace(' ', '_')
+        #     es_field_names[facet_name] = es_field_name
+        # facets['Samples Overview'] = {
+        #     'elasticsearch_field_names': es_field_names,
+        #     'type': 'samples_overview',
+        #     'ui_facet_name': 'Samples Overview'
+        # }
+        # facets['Samples Overview'][
+        #     'es_facet'] = elasticsearch_util.get_samples_overview_facet(
+        #         es_field_names)
 
-        name = 'RNA sample'
-        rna_field_names = {
-            'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
-        }
-        facets[name] = {
-            'elasticsearch_field_names': rna_field_names,
-            'type': 'samples_overview',
-            'ui_facet_name': name
-        }
-        facets[name][
-            'es_facet'] = elasticsearch_util.get_samples_overview_facet(
-                rna_field_names)
-        name = 'WGS sample'
-        wgs_field_names = {
-            'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
-        }
-        facets[name] = {
-            'elasticsearch_field_names': wgs_field_names,
-            'type': 'samples_overview',
-            'ui_facet_name': name
-        }
-        facets[name][
-            'es_facet'] = elasticsearch_util.get_samples_overview_facet(
-                wgs_field_names)
+        # name = 'RNA sample'
+        # rna_field_names = {
+        #     'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
+        # }
+        # facets[name] = {
+        #     'elasticsearch_field_names': rna_field_names,
+        #     'type': 'samples_overview',
+        #     'ui_facet_name': name
+        # }
+        # facets[name][
+        #     'es_facet'] = elasticsearch_util.get_samples_overview_facet(
+        #         rna_field_names)
+        # name = 'WGS sample'
+        # wgs_field_names = {
+        #     'Has %s' % name: 'samples._has_%s' % name.lower().replace(' ', '_')
+        # }
+        # facets[name] = {
+        #     'elasticsearch_field_names': wgs_field_names,
+        #     'type': 'samples_overview',
+        #     'ui_facet_name': name
+        # }
+        # facets[name][
+        #     'es_facet'] = elasticsearch_util.get_samples_overview_facet(
+        #         wgs_field_names)
     # app.app.logger.warning('HEY WILLY LOOK HERE')
     # app.app.logger.warning(facets)
     app.app.config['NESTED_PATHS'] = elasticsearch_util.get_nested_paths(es)
@@ -343,6 +344,8 @@ def _process_facets(es):
     # - time_series_field: If facet is for a time series field
     # - description: optional UI facet description
     # - es_facet: Elasticsearch facet
+    app.app.logger.info('Willy facets below')
+    app.app.logger.info(facets)
     app.app.config['FACET_INFO'] = facets
     app.app.config['EXTRA_FACET_INFO'] = {}
 
