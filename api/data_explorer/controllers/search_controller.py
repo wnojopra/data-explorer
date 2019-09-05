@@ -107,6 +107,11 @@ def _results_from_main_index(fields, query_regex, time_series_stem=''):
                     (field_value, is_time_series))
     return field_to_facet_values
 
+def filter_function(var):
+    current_app.logger.info(dir(var))
+    if var.facet_name in ['GUID']:
+        return False
+    return True
 
 def search_get(query=None):
     """search_get
@@ -205,5 +210,5 @@ def search_get(query=None):
                                              es_field_name.split('.')[-1]),
                                  facet_value=facet_value,
                                  is_time_series=is_time_series))
-
+    search_results = filter(filter_function, search_results)
     return SearchResponse(search_results=search_results)
