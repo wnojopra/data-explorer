@@ -231,7 +231,7 @@ def get_facet_value_dict(es, filters, facets):
 
 
 def field_exists(es, field_name):
-    if 'has_rna' or 'has_wgs' in field_name:
+    if 'has_rna' in field_name or 'has_wgs' in field_name:
         return True
     try:
         es.get(index=current_app.config['FIELDS_INDEX_NAME'],
