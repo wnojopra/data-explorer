@@ -168,7 +168,9 @@ class Histogram extends Component {
     const data = {
       values: this.props.values.map(v => {
         return {
-          facet_value: v.name,
+          facet_value: v.name == "true" ?  "True" :
+                       v.name == "false" ? "False" :
+                       v.name,
           count: v.count,
           dimmed: this.isValueDimmed(v),
           text: `${v.name}: ${v.count}`,
