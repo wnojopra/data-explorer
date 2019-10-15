@@ -123,7 +123,7 @@ class TimeSeriesHistograms extends Component {
     const facetValueNameAxis = {
       field: "facet_value",
       type: "nominal",
-      title: this.props.facet.name,
+      title: "",
       sort: facetValueNames,
       axis: {
         labelFontSize: 12,
