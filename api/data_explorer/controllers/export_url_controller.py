@@ -108,6 +108,20 @@ def _get_range_clause(column, value, bucket_interval):
     # See https://github.com/elastic/elasticsearch-dsl-py/blob/master/elasticsearch_dsl/faceted_search.py#L125
     return column + " >= " + str(low) + " AND " + column + " < " + str(high)
 
+def _get_amp_pd_table_and_clause(es_field_name, sample_file_column_fields, value):
+    if es_field_name == '_has_rna_sample':
+        es_field_name = sample_file_column_fields['rna_sample']
+    elif es_field_name == '_has_wgs_sample':
+        es_field_name = sample_file_column_fields['wgs_sample']
+    else:
+        raise Exception('Invalid sample type for cohort')
+    table_name, column = es_field_name.rsplit('.', 1)
+    if value == 'true':
+        clause = '%s IS NOT NULL' % column
+    else:
+        clause = '%s IS NULL' % column
+    return table_name, column, clause
+
 
 def _get_table_and_clause(es_field_name, field_type, value, bucket_interval,
                           sample_file_column_fields, is_time_series,
@@ -115,6 +129,10 @@ def _get_table_and_clause(es_field_name, field_type, value, bucket_interval,
     """Returns a table name and a single condition of a WHERE clause,
     eg "((age76 >= 20 AND age76 < 30) OR (age76 >= 30 AND age76 < 40))".
     """
+    if es_field_name in ['_has_rna_sample', '_has_wgs_sample']:
+        return _get_amp_pd_table_and_clause(es_field_name, sample_file_column_fields, value)
+    if 'has_tsv_rna_sample' in es_field_name:
+        raise Exception('Invalid sample type for cohort')
     sample_file_type_field = False
     if field_type == 'samples_overview':
         es_field_name = current_app.config['FACET_INFO']['Samples Overview'][
