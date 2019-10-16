@@ -108,7 +108,6 @@ def _results_from_main_index(fields, query_regex, time_series_stem=''):
     return field_to_facet_values
 
 def filter_function(var):
-    current_app.logger.info(dir(var))
     if var.facet_name in ['GUID']:
         return False
     return True

@@ -216,6 +216,13 @@ def _add_facet(es_field_name, is_time_series, parent_is_time_series,
     if 'ui_facet_description' in facet_config:
         facets[es_field_name]['description'] = facet_config[
             'ui_facet_description']
+    else:
+        try:
+            facets[es_field_name]['description'] = elasticsearch_util.get_field_description(
+                es, es_field_name)
+        except ValueError as e:
+            app.app.logger.info('No description for {}'.format(es_field_name))
+            pass
     facets[es_field_name][
         'es_facet'] = elasticsearch_util.get_elasticsearch_facet(
             es, es_field_name, field_type, time_series_vals)
@@ -344,8 +351,6 @@ def _process_facets(es):
     # - time_series_field: If facet is for a time series field
     # - description: optional UI facet description
     # - es_facet: Elasticsearch facet
-    app.app.logger.info('Willy facets below')
-    app.app.logger.info(facets)
     app.app.config['FACET_INFO'] = facets
     app.app.config['EXTRA_FACET_INFO'] = {}
 
@@ -412,9 +417,9 @@ def init():
         _process_facets(es)
         _process_export_url()
 
-        app.app.logger.info('app.app.config:')
-        for key in sorted(app.app.config.keys()):
-            app.app.logger.info('    %s: %s' % (key, app.app.config[key]))
+        # app.app.logger.info('app.app.config:')
+        # for key in sorted(app.app.config.keys()):
+        #     app.app.logger.info('    %s: %s' % (key, app.app.config[key]))
 
 
 init()
