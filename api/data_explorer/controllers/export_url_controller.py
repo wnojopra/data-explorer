@@ -114,12 +114,21 @@ def _get_amp_pd_table_and_clause(es_field_name, sample_file_column_fields, value
     elif es_field_name == '_has_wgs_sample':
         es_field_name = sample_file_column_fields['wgs_sample']
     else:
-        raise Exception('Invalid sample type for cohort')
+        raise Exception('Invalid sample type for cohort: {}'.format(es_field_name))
     table_name, column = es_field_name.rsplit('.', 1)
     if value == 'true':
         clause = '%s IS NOT NULL' % column
     else:
         clause = '%s IS NULL' % column
+    return table_name, column, clause
+
+def _get_amp_pd_time_series_table_and_clause(es_field_name, sample_file_column_fields):
+    # project.dataset.table.column is specified in sample_file_column_fields
+    table_name, column = sample_file_column_fields['rna_sample'].rsplit('.', 1)
+    # es_field_name is something like has_tsv_rna_sample.0_0
+    _, value = es_field_name.split('.')
+    value = value.replace('_', '.')
+    clause = 'visit_month={}'.format(value)
     return table_name, column, clause
 
 
@@ -132,7 +141,7 @@ def _get_table_and_clause(es_field_name, field_type, value, bucket_interval,
     if es_field_name in ['_has_rna_sample', '_has_wgs_sample']:
         return _get_amp_pd_table_and_clause(es_field_name, sample_file_column_fields, value)
     if 'has_tsv_rna_sample' in es_field_name:
-        raise Exception('Invalid sample type for cohort')
+        return _get_amp_pd_time_series_table_and_clause(es_field_name, sample_file_column_fields)
     sample_file_type_field = False
     if field_type == 'samples_overview':
         es_field_name = current_app.config['FACET_INFO']['Samples Overview'][
